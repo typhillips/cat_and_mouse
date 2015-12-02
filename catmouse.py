@@ -82,16 +82,16 @@ if __name__ == "__main__":
 		# Move the cat based on key presses
 		keyState = pygame.key.get_pressed()
 
-		if keyState[pygame.K_UP]:
+		if keyState[pygame.K_UP] and (caty > 0):
 			caty -= catSpeed
-		if keyState[pygame.K_DOWN]:
+		if keyState[pygame.K_DOWN] and (caty < (SCREEN_SIZE[1] - cat.rect.size[1])):
 			caty += catSpeed
-		if keyState[pygame.K_LEFT]:
+		if keyState[pygame.K_LEFT] and (catx > 0):
 			catx -= catSpeed
-		if keyState[pygame.K_RIGHT]:
+		if keyState[pygame.K_RIGHT] and (catx < (SCREEN_SIZE[0] - cat.rect.size[0])):
 			catx += catSpeed
 
-		cat.update((catx, caty))	# Update cat sprite position
+		cat.update((catx, caty))	# Update position of cat sprite
 
 		# Test code to move cat and mouse diagonally down & to the right @different speeds
 		mousex += 2
