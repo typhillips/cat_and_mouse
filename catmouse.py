@@ -32,7 +32,7 @@ class Cat(pygame.sprite.Sprite):
 
 class Mouse(pygame.sprite.Sprite):
 	"""Mouse class"""
-	def __init__(self):
+	def __init__(self, startPos=(0, 0)):
 		"""Creates a mouse given an (x,y) tuple with specified starting position."""
 		pygame.sprite.Sprite.__init__(self)		# Call the parent class (Sprite) constructor
 
@@ -42,9 +42,37 @@ class Mouse(pygame.sprite.Sprite):
 		# Update the position of this object by setting the values # of rect.x and rect.y
 		self.rect = self.image.get_rect()
 
+		self.xpos = startPos[0]				# Initial position
+		self.ypos = startPos[1]				# Initial position
+		self.xmove = random.randrange(0,5)	# x amount to move each update
+		self.ymove = random.randrange(0,5)	# y amount to move each update
+
+	def move(self):
+		self.xpos += self.xmove
+		self.ypos += self.ymove
+
 	def update(self, newPos):
 		self.rect.x = newPos[0]
 		self.rect.y = newPos[1]
+
+
+mouse = []
+
+def MakeMice():
+	global mouse
+	mouse = []
+	for i in range(0,5):
+		mouse.append(Mouse())
+		mousex = random.randrange(1, SCREEN_SIZE[0] - mouse[i].rect.size[0])
+		mousey = random.randrange(1, SCREEN_SIZE[1] - mouse[i].rect.size[1])
+		mouse[i].xpos, mouse[i].ypos = mousex, mousey
+		mouse[i].update((mousex, mousey))
+		allgroup.add(mouse[i])
+
+def RemoveMiceFromGroup():
+	global mouse
+	for i in range(0,5):
+		allgroup.remove(mouse[i])
 
 
 if __name__ == "__main__":
@@ -58,15 +86,12 @@ if __name__ == "__main__":
 	caty = random.randrange(1, SCREEN_SIZE[1] - cat.rect.size[1])
 	cat.update((catx, caty))
 
-	mouse = Mouse()
-	mousex = random.randrange(1, SCREEN_SIZE[0] - mouse.rect.size[0])
-	mousey = random.randrange(1, SCREEN_SIZE[1] - mouse.rect.size[1])
-	mouse.update((mousex, mousey))
-
 	# Create group (allgroup) for sprites to belong to
 	allgroup = pygame.sprite.Group()
-	allgroup.add(cat)
-	allgroup.add(mouse)
+
+	MakeMice()
+
+	allgroup.add(cat)		# Make cat appear on top
 
 	# Main loop
 	while True:
@@ -91,10 +116,15 @@ if __name__ == "__main__":
 		if keyState[pygame.K_RIGHT] and (catx < (SCREEN_SIZE[0] - cat.rect.size[0])):
 			catx += catSpeed
 
+		if keyState[pygame.K_m]:	#debug
+			RemoveMiceFromGroup()	#debug
+			MakeMice()				#debug
+
 		cat.update((catx, caty))	# Update position of cat sprite
 
-		# Test code to move cat and mouse diagonally down & to the right @different speeds
-		mousex += 2
-		mousey += 2
-		mouse.update((mousex, mousey))
+		# Update all mice
+		for i in range(0,5):
+			mouse[i].move()
+			mouse[i].update((mouse[i].xpos, mouse[i].ypos))
+
 		pygame.time.wait(waitTime)
