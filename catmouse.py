@@ -3,10 +3,10 @@ import random
 import pygame
 
 # Constants
-SCREEN_SIZE = (600, 400)
-BACKGROUND_PICT = "grass.png"		# For now, background pict must be same dimenstions as screenSize (600x400 pixels)
-CAT_PICT = "cat.png"				# 80x58 pixels
-MOUSE_PICT = "mouse.png"			# 50x49 pixels
+screenSize = (600, 400)
+bkgrndPict = "grass.png"		# For now, background pict must be same dimenstions as screenSize (600x400 pixels)
+catPict = "cat.png"				# 80x58 pixels
+mousePict = "mouse.png"			# 50x49 pixels
 catSpeed = 7						# Pixels to move for each keypress
 waitTime = 10						# Time delay in ms for each loop
 
@@ -20,7 +20,7 @@ class Cat(pygame.sprite.Sprite):
 		"""Creates a cat given an (x,y) tuple with specified starting position."""
 		pygame.sprite.Sprite.__init__(self)		# Call the parent class (Sprite) constructor
 
-		self.image = pygame.image.load(CAT_PICT).convert_alpha()
+		self.image = pygame.image.load(catPict).convert_alpha()
 
 		# Fetch the rectangle object that has the dimensions of the image
 		# Update the position of this object by setting the values # of rect.x and rect.y
@@ -36,7 +36,7 @@ class Mouse(pygame.sprite.Sprite):
 		"""Creates a mouse given an (x,y) tuple with specified starting position."""
 		pygame.sprite.Sprite.__init__(self)		# Call the parent class (Sprite) constructor
 
-		self.image = pygame.image.load(MOUSE_PICT).convert_alpha()
+		self.image = pygame.image.load(mousePict).convert_alpha()
 
 		# Fetch the rectangle object that has the dimensions of the image
 		# Update the position of this object by setting the values # of rect.x and rect.y
@@ -49,18 +49,18 @@ class Mouse(pygame.sprite.Sprite):
 
 if __name__ == "__main__":
 	pygame.init()
-	screen = pygame.display.set_mode(SCREEN_SIZE)
-	background = pygame.image.load(BACKGROUND_PICT).convert_alpha()
+	screen = pygame.display.set_mode(screenSize)
+	background = pygame.image.load(bkgrndPict).convert_alpha()
 
 	# Place both cat and mouse at random start location
 	cat = Cat()
-	catx = random.randrange(1, SCREEN_SIZE[0] - cat.rect.size[0])
-	caty = random.randrange(1, SCREEN_SIZE[1] - cat.rect.size[1])
+	catx = random.randrange(1, screenSize[0] - cat.rect.size[0])
+	caty = random.randrange(1, screenSize[1] - cat.rect.size[1])
 	cat.update((catx, caty))
 
 	mouse = Mouse()
-	mousex = random.randrange(1, SCREEN_SIZE[0] - mouse.rect.size[0])
-	mousey = random.randrange(1, SCREEN_SIZE[1] - mouse.rect.size[1])
+	mousex = random.randrange(1, screenSize[0] - mouse.rect.size[0])
+	mousey = random.randrange(1, screenSize[1] - mouse.rect.size[1])
 	mouse.update((mousex, mousey))
 
 	# Create group (allgroup) for sprites to belong to
@@ -84,11 +84,11 @@ if __name__ == "__main__":
 
 		if keyState[pygame.K_UP] and (caty > 0):
 			caty -= catSpeed
-		if keyState[pygame.K_DOWN] and (caty < (SCREEN_SIZE[1] - cat.rect.size[1])):
+		if keyState[pygame.K_DOWN] and (caty < (screenSize[1] - cat.rect.size[1])):
 			caty += catSpeed
 		if keyState[pygame.K_LEFT] and (catx > 0):
 			catx -= catSpeed
-		if keyState[pygame.K_RIGHT] and (catx < (SCREEN_SIZE[0] - cat.rect.size[0])):
+		if keyState[pygame.K_RIGHT] and (catx < (screenSize[0] - cat.rect.size[0])):
 			catx += catSpeed
 
 		cat.update((catx, caty))	# Update position of cat sprite
