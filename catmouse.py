@@ -41,26 +41,28 @@ class Mouse(pygame.sprite.Sprite):
 		self.rect = self.image.get_rect()
 
 
-		#TODO here's how I want to do this start position and movement direction business
-		# Select a random number between 0 and 3. Each one represents a side of the screen.
-		# If 0, set x = -self.rect.size[0] and y to a random number from 0 to screenSize[1]
-		# If 1, set y = -self.rect.size[1] and x to a random number from 0 to screenSize[0]
-		#   etc....
-		# Then determine if we're in the top or bottom half of the rectangle based on y
-		# Assign a random point on the other side as the endpoint
-		# Calculate the slope of the line between the two points and set xmove & ymove to the
-		# nearest integers to this slope
-		# VOILA!!
+		# Here's what the code below is supposed to be doing:
+		#   - Find a random starting point for the sprite on the edge of the screen
+		#   - Determine if the starting point is on the top half or bottom half of the screen
+		#   - Find a second random point (the end point for the sprite) on the other half of the screen
+		#   - Calculate the slope between the 2 points
+		#   - Figure out the closest integer approximations of xmove,ymove (these represent the amount
+		#     to change x and y each iteration through the main loop) based on this slope
 
+		# Get random point on edge of screen and set starting sprite position to this point
 		startPoint = self.makeEdgePoint(screenSize)
 		self.rect.x = startPoint[0]
 		self.rect.y = startPoint[1]
 
+		# Find another random point on the other half of the screen
 		tmpPoint = self.makeEdgePoint((screenSize[0], screenSize[1]/2))
 		endx = tmpPoint[0]
 
 		# Now figure out if we are starting on the top or bottom half of the screen
-		#   end point should be on opposite half
+		#   The end point should be on opposite half
+		#   ----TODO fix this code - it's not going to work right for a top/bottom edge (depending on which half)
+		#       of screen we're in) because we could end up in the middle
+		#       For now a hack workaround is to keep selecting a random point until it is on the opposite screen edge
 		if self.rect.y < (screenSize[1] / 2):		# Starting in top half
 			endy = tmpPoint[1] + (screenSize[1] / 2)
 		else:
