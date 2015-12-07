@@ -10,6 +10,7 @@ mousePict = "mouse.png"			# 50x49 pixels
 catSpeed = 7					# Pixels to move for each keypress
 waitTime = 10					# Time delay in ms for each loop
 spawnTime = 2000				# Time in ms between each mouse spawn TODO randomize this
+mouseMoveGain = 5				# Gain factor which affects how fast the mice move
 
 class Cat(pygame.sprite.Sprite):
 	"""Cat class"""
@@ -68,12 +69,25 @@ class Mouse(pygame.sprite.Sprite):
 		# Now calculate slope between (self.rect.x,self.rect.y) and (endx,endy)
 		slope = float(endy - self.rect.y) / float(endx - self.rect.x)
 
-		if slope > 1.0:
-			self.ymove = int(round(slope, 0))	# Round to nearest integer
-		else:
-			self.xmove = int(round(slope, 0))	# Round to nearest integer
+		# Save off sign of slope and then get absolute value
+		tmp = 1
 
-		#TODO figure out how to make the slope a fraction with neither number exceeding some threshold (5? 10?)
+		if slope < 0:
+			tmp *= -1
+
+		slope = abs(slope)
+		
+		if slope < 1:
+			self.xmove = mouseMoveGain
+			self.ymove = int(round(slope, 0))
+		elif slope > mouseMoveGain:
+			self.xmove = 0
+			self.ymove = mouseMoveGain
+		else:
+			self.xmove = int(round(slope * mouseMoveGain, 0))
+			self.ymove = mouseMoveGain
+
+		#TODO take care of negative slope (re-assign xmove/ymove appropriately)
 
 		# Create movement direction for sprite (they only move in one direction)
 		#self.xmove = random.randrange(0, 5)	# x amount to move each update
