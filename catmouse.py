@@ -40,45 +40,35 @@ class Mouse(pygame.sprite.Sprite):
 		# Update the position of this object by setting the values # of rect.x and rect.y
 		self.rect = self.image.get_rect()
 
-
-		# Here's what the code below is supposed to be doing:
-		#   - Find a random starting point for the sprite on the edge of the screen
-		#   - Determine if the starting point is on the top half or bottom half of the screen
-		#   - Find a second random point (the end point for the sprite) on the other half of the screen
-		#   - Calculate the slope between the 2 points
-		#   - Figure out the closest integer approximations of xmove,ymove (these represent the amount
-		#     to change x and y each iteration through the main loop) based on this slope
-
 		# Get random point on edge of screen and set starting sprite position to this point
 		startPoint = self.makeEdgePoint(screenSize)
 		self.rect.x = startPoint[0]
 		self.rect.y = startPoint[1]
 
-		# Find another random point on the other half of the screen
-		tmpPoint = self.makeEdgePoint((screenSize[0], screenSize[1]/2))
-		endx = tmpPoint[0]
+		# Get a second random point (but convert tuple to a list so we can manipulate it)
+		endPoint = list(self.makeEdgePoint(screenSize))
 
-		# Now figure out if we are starting on the top or bottom half of the screen
-		#   The end point should be on opposite half
-		#   ----TODO fix this code - it's not going to work right for a top/bottom edge (depending on which half)
-		#       of screen we're in) because we could end up in the middle
-		#       For now a hack workaround is to keep selecting a random point until it is on the opposite screen edge
-		if self.rect.y < (screenSize[1] / 2):		# Starting in top half
-			endy = tmpPoint[1] + (screenSize[1] / 2)
+		#### This next bit of code ensures that start and end points aren't too close together
+		# If start point is on left edge, force end point to right side of screen, and
+		#   if start point is on right edge, force end point to left side of screen
+		if ((startPoint[0] == 0) and (endPoint[0] < (screenSize[0] / 2))) or \
+		   ((startPoint[0] == screenSize[0]) and (endPoint[0] > (screenSize[0] / 2))):
+			endPoint[0] = screenSize[0] - endPoint[0]	# Flip end point horizontally
+		# If start point is on top edge, force end point to bottom side of screen, and
+		#   if start point is on bottom edge, force end point to top side of screen
+		elif ((startPoint[1] == 0) and (endPoint[1] < (screenSize[1] / 2))) or \
+		     ((startPoint[1] == screenSize[1]) and (endPoint[1] > (screenSize[1] > 2))):
+			endPoint[1] = screenSize[1] - endPoint[1]	# Flip end point vertically
 		else:
-			endy = tmpPoint[1]
+			pass
 
-		# Now calculate slope between (self.rect.x,self.rect.y) and (endx,endy)
-		slope = float(endy - self.rect.y) / float(endx - self.rect.x)
+		# Calculate slope of the line between start and end points
+		xdelta = endPoint[0] - startPoint[0]
+		ydelta = endPoint[1] - startPoint[1]
+		slope = abs(float(ydelta) / float(xdelta))
 
-		# Save off sign of slope and then get absolute value
-		tmp = 1
-
-		if slope < 0:
-			tmp *= -1
-
-		slope = abs(slope)
-		
+		# Figure out the closest integer approximations of xmove,ymove (these represent the amount
+		#   to change x and y each iteration through the main loop) based on this slope
 		if slope < 1:
 			self.xmove = mouseMoveGain
 			self.ymove = int(round(slope, 0))
@@ -89,11 +79,11 @@ class Mouse(pygame.sprite.Sprite):
 			self.xmove = int(round(slope * mouseMoveGain, 0))
 			self.ymove = mouseMoveGain
 
-		#TODO take care of negative slope (re-assign xmove/ymove appropriately)
-
-		# Create movement direction for sprite (they only move in one direction)
-		#self.xmove = random.randrange(0, 5)	# x amount to move each update
-		#self.ymove = random.randrange(0, 5)	# y amount to move each update
+		# Re-apply correct sign to x,y terms so we move in the correct direction
+		if xdelta < 0:
+			self.xmove = -self.xmove
+		if ydelta < 0:
+			self.ymove = -self.ymove
 
 	def makeEdgePoint(self, size):
 		"""Given a rectangle of specified dimensions, find a random x,y point on an edge."""
@@ -114,7 +104,7 @@ class Mouse(pygame.sprite.Sprite):
 
 		return (x, y)
 
-	def update(self, newPos):
+	def update(self):
 		self.rect.x += self.xmove
 		self.rect.y += self.ymove
 
@@ -124,6 +114,7 @@ class CatMouseGame(object):
 		pygame.init()
 		self.screen = pygame.display.set_mode(screenSize)
 		self.background = pygame.image.load(bkgrndPict).convert_alpha()
+		self.mice = []
 		self.mouseSpawnTimer = 0
 
 	def start(self):
@@ -138,11 +129,7 @@ class CatMouseGame(object):
 		self.allgroup = pygame.sprite.Group()
 		self.allgroup.add(self.cat)
 
-		#mouse = Mouse()
-		#mousex = random.randrange(1, screenSize[0] - mouse.rect.size[0])
-		#mousey = random.randrange(1, screenSize[1] - mouse.rect.size[1])
-		#mouse.update((mousex, mousey))
-		#allgroup.add(mouse)
+		# Run main game loop
 		self.mainLoop()
 
 	def manageMice(self):
