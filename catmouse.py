@@ -108,6 +108,11 @@ class Mouse(pygame.sprite.Sprite):
 		self.rect.x += self.xmove
 		self.rect.y += self.ymove
 
+		if (self.rect.x > screenSize[0]) or (self.rect.y > screenSize[1]):
+			return False
+		else:
+			return True
+
 class CatMouseGame(object):
 	"""Main class for the game"""
 	def __init__(self):
