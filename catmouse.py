@@ -108,11 +108,6 @@ class Mouse(pygame.sprite.Sprite):
 		self.rect.x += self.xmove
 		self.rect.y += self.ymove
 
-		if (self.rect.x > screenSize[0]) or (self.rect.y > screenSize[1]):
-			return False
-		else:
-			return True
-
 class CatMouseGame(object):
 	"""Main class for the game"""
 	def __init__(self):
@@ -143,11 +138,14 @@ class CatMouseGame(object):
 		if (pygame.time.get_ticks() - self.mouseSpawnTimer) > spawnTime:
 			mouse = Mouse()
 			self.mice.append(mouse)
+			self.allgroup.add(mouse)
 			self.mouseSpawnTimer = pygame.time.get_ticks()	# Reset spawn timer to current time
 
 		# Move each mouse
 		for mouse in self.mice:
 			mouse.update()
+			if (mouse.rect.x > screenSize[0]) or (mouse.rect.y > screenSize[1]):
+				mouse.kill()
 
 	def mainLoop(self):
 		"""Main loop for gameplay."""
@@ -156,12 +154,11 @@ class CatMouseGame(object):
 				if event.type == pygame.QUIT:
 					sys.exit()
 
-			self.manageMice()		# Take care of the mice
-
 			self.screen.blit(self.background, (0, 0))	# Display background image (same size as screen)
 			self.allgroup.clear(self.screen, self.background)
 			self.allgroup.draw(self.screen)
 			pygame.display.flip()
+
 
 			# Move the cat based on key presses
 			keyState = pygame.key.get_pressed()
@@ -181,6 +178,9 @@ class CatMouseGame(object):
 
 			# Update position of cat sprite
 			self.cat.update((self.catx, self.caty))
+
+			# Take care of the mice
+			self.manageMice()
 
 			# Test code to move cat and mouse diagonally down & to the right @different speeds
 			#mousex += 2
