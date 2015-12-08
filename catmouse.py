@@ -10,7 +10,7 @@ mousePict = "mouse.png"			# 50x49 pixels
 catSpeed = 7					# Pixels to move for each keypress
 waitTime = 10					# Time delay in ms for each loop
 spawnTime = 2000				# Time in ms between each mouse spawn TODO randomize this
-mouseMoveGain = 5				# Gain factor which affects how fast the mice move
+mouseMoveGain = 3				# Gain factor which affects how fast the mice move
 
 class Cat(pygame.sprite.Sprite):
 	"""Cat class"""
@@ -65,7 +65,14 @@ class Mouse(pygame.sprite.Sprite):
 		# Calculate slope of the line between start and end points
 		xdelta = endPoint[0] - startPoint[0]
 		ydelta = endPoint[1] - startPoint[1]
-		slope = abs(float(ydelta) / float(xdelta))
+		if xdelta != 0:
+			slope = abs(float(ydelta) / float(xdelta))
+		elif ydelta > 0:
+			slope = mouseMoveGain
+		elif ydelta < 0:	
+			slope = -mouseMoveGain
+		else:
+			pass
 
 		# Figure out the closest integer approximations of xmove,ymove (these represent the amount
 		#   to change x and y each iteration through the main loop) based on this slope
@@ -125,9 +132,10 @@ class CatMouseGame(object):
 		self.caty = random.randrange(1, screenSize[1] - self.cat.rect.size[1])
 		self.cat.update((self.catx, self.caty))
 
-		# Create group (allgroup) for sprites to belong to
-		self.allgroup = pygame.sprite.Group()
-		self.allgroup.add(self.cat)
+		# Create groups for sprites to belong to
+		self.catgroup = pygame.sprite.Group()
+		self.catgroup.add(self.cat)
+		self.mousegroup = pygame.sprite.Group()
 
 		# Run main game loop
 		self.mainLoop()
@@ -138,7 +146,7 @@ class CatMouseGame(object):
 		if (pygame.time.get_ticks() - self.mouseSpawnTimer) > spawnTime:
 			mouse = Mouse()
 			self.mice.append(mouse)
-			self.allgroup.add(mouse)
+			self.catgroup.add(mouse)
 			self.mouseSpawnTimer = pygame.time.get_ticks()	# Reset spawn timer to current time
 
 		# Move each mouse
@@ -155,8 +163,10 @@ class CatMouseGame(object):
 					sys.exit()
 
 			self.screen.blit(self.background, (0, 0))	# Display background image (same size as screen)
-			self.allgroup.clear(self.screen, self.background)
-			self.allgroup.draw(self.screen)
+			self.mousegroup.clear(self.screen, self.background)		# Draw mice first (so cat will overlap)
+			self.mousegroup.draw(self.screen)
+			self.catgroup.clear(self.screen, self.background)
+			self.catgroup.draw(self.screen)
 			pygame.display.flip()
 
 
