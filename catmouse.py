@@ -195,19 +195,21 @@ class CatMouseGame(object):
 
 			self.screen.blit(self.background, (0, 0))	# Display background image (same size as screen)
 
-			# Display score
-			font = pygame.font.Font(None, 24)
-			text = font.render("Score: " + str(self.score), 1, (255, 255, 255))
-			textpos = text.get_rect()
-			textpos.topleft = self.screen.get_rect().topleft
-			self.screen.blit(text, textpos)
-
 			self.mousegroup.clear(self.screen, self.background)		# Draw mice first (so cat will overlap)
 			self.mousegroup.draw(self.screen)
 			self.catgroup.clear(self.screen, self.background)
 			self.catgroup.draw(self.screen)
-			pygame.display.flip()
 
+			# Display score
+			font = pygame.font.Font(None, 24)
+			text = font.render("Score: " + str(self.score), 1, (255, 255, 255))
+			textpos = text.get_rect()
+			#textpos.topleft = self.screen.get_rect().topleft
+			textpos.topleft = (10, 10)
+			self.screen.blit(text, textpos)
+
+			pygame.display.flip()
+			
 			# Test code to move cat and mouse diagonally down & to the right @different speeds
 			#mousex += 2
 			#mousey += 2
