@@ -69,7 +69,7 @@ class Mouse(pygame.sprite.Sprite):
 			slope = abs(float(ydelta) / float(xdelta))
 		elif ydelta > 0:
 			slope = mouseMoveGain
-		elif ydelta < 0:	
+		elif ydelta < 0:
 			slope = -mouseMoveGain
 		else:
 			pass
@@ -123,6 +123,7 @@ class CatMouseGame(object):
 		self.background = pygame.image.load(bkgrndPict).convert_alpha()
 		self.mice = []
 		self.mouseSpawnTimer = 0
+		self.score = 0
 
 	def start(self):
 		"""Initialize & start the game."""
@@ -146,7 +147,7 @@ class CatMouseGame(object):
 		if (pygame.time.get_ticks() - self.mouseSpawnTimer) > spawnTime:
 			mouse = Mouse()
 			self.mice.append(mouse)
-			self.catgroup.add(mouse)
+			self.mousegroup.add(mouse)
 			self.mouseSpawnTimer = pygame.time.get_ticks()	# Reset spawn timer to current time
 
 		# Move each mouse
@@ -161,14 +162,6 @@ class CatMouseGame(object):
 			for event in pygame.event.get():
 				if event.type == pygame.QUIT:
 					sys.exit()
-
-			self.screen.blit(self.background, (0, 0))	# Display background image (same size as screen)
-			self.mousegroup.clear(self.screen, self.background)		# Draw mice first (so cat will overlap)
-			self.mousegroup.draw(self.screen)
-			self.catgroup.clear(self.screen, self.background)
-			self.catgroup.draw(self.screen)
-			pygame.display.flip()
-
 
 			# Move the cat based on key presses
 			keyState = pygame.key.get_pressed()
@@ -191,6 +184,29 @@ class CatMouseGame(object):
 
 			# Take care of the mice
 			self.manageMice()
+
+			# See if the cat has collided with anything in the mouse group
+			#  (Note: the True flag will remove the mouse from the list)
+			collideList = pygame.sprite.spritecollide(self.cat, self.mousegroup, True)
+
+			# Add 1 to the score for each mouse caught
+			for mouse in collideList:
+				self.score +=1
+
+			self.screen.blit(self.background, (0, 0))	# Display background image (same size as screen)
+
+			# Display score
+			font = pygame.font.Font(None, 24)
+			text = font.render("Score: " + str(self.score), 1, (255, 255, 255))
+			textpos = text.get_rect()
+			textpos.topleft = self.screen.get_rect().topleft
+			self.screen.blit(text, textpos)
+
+			self.mousegroup.clear(self.screen, self.background)		# Draw mice first (so cat will overlap)
+			self.mousegroup.draw(self.screen)
+			self.catgroup.clear(self.screen, self.background)
+			self.catgroup.draw(self.screen)
+			pygame.display.flip()
 
 			# Test code to move cat and mouse diagonally down & to the right @different speeds
 			#mousex += 2
