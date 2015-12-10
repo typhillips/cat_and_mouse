@@ -210,16 +210,11 @@ class CatMouseGame(object):
 			font = pygame.font.Font(None, 24)
 			text = font.render("Score: " + str(self.score), 1, (255, 255, 255))
 			textpos = text.get_rect()
-			#textpos.topleft = self.screen.get_rect().topleft
 			textpos.topleft = (10, 10)
 			self.screen.blit(text, textpos)
 
 			pygame.display.flip()
 			
-			# Test code to move cat and mouse diagonally down & to the right @different speeds
-			#mousex += 2
-			#mousey += 2
-			#mouse.update((mousex, mousey))
 			pygame.time.wait(waitTime)	# To regulate gameplay speed
 
 if __name__ == "__main__":
