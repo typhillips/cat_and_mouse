@@ -23,7 +23,10 @@ class Cat(pygame.sprite.Sprite):
 		# Fetch the rectangle object that has the dimensions of the image
 		# Update the position of this object by setting the values # of rect.x and rect.y
 		self.rect = self.image.get_rect()
-
+		
+		# For collision detection (half of rect width)
+		self.radius = self.rect.width / 2
+		
 	def update(self, newPos):
 		self.rect.x = newPos[0]
 		self.rect.y = newPos[1]
@@ -39,6 +42,9 @@ class Mouse(pygame.sprite.Sprite):
 		# Fetch the rectangle object that has the dimensions of the image
 		# Update the position of this object by setting the values # of rect.x and rect.y
 		self.rect = self.image.get_rect()
+		
+		# For collision detection (half of rect width)
+		self.radius = self.rect.width / 2
 
 		# Get random point on edge of screen and set starting sprite position to this point
 		startPoint = self.makeEdgePoint(screenSize)
@@ -187,7 +193,7 @@ class CatMouseGame(object):
 
 			# See if the cat has collided with anything in the mouse group
 			#  (Note: the True flag will remove the mouse from the list)
-			collideList = pygame.sprite.spritecollide(self.cat, self.mousegroup, True)
+			collideList = pygame.sprite.spritecollide(self.cat, self.mousegroup, True, pygame.sprite.collide_circle)
 
 			# Add 1 to the score for each mouse caught
 			for mouse in collideList:
