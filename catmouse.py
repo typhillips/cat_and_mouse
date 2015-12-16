@@ -7,6 +7,8 @@ screenSize = (600, 400)
 bkgrndPict = "grass.png"		# For now, background pict must be same dimenstions as screenSize (600x400 pixels)
 catPict = "cat.png"				# 80x58 pixels
 mousePict = "mouse.png"			# 50x49 pixels
+mutePict = "mute.png"
+collideSound = "meow.ogg"
 catSpeed = 7					# Pixels to move for each keypress
 waitTime = 10					# Time delay in ms for each loop
 spawnTime = 2000				# Time in ms between each mouse spawn TODO randomize this
@@ -23,10 +25,10 @@ class Cat(pygame.sprite.Sprite):
 		# Fetch the rectangle object that has the dimensions of the image
 		# Update the position of this object by setting the values # of rect.x and rect.y
 		self.rect = self.image.get_rect()
-		
+
 		# For collision detection (half of rect width)
 		self.radius = self.rect.width / 2
-		
+
 	def update(self, newPos):
 		self.rect.x = newPos[0]
 		self.rect.y = newPos[1]
@@ -42,7 +44,7 @@ class Mouse(pygame.sprite.Sprite):
 		# Fetch the rectangle object that has the dimensions of the image
 		# Update the position of this object by setting the values # of rect.x and rect.y
 		self.rect = self.image.get_rect()
-		
+
 		# For collision detection (half of rect width)
 		self.radius = self.rect.width / 2
 
@@ -127,9 +129,12 @@ class CatMouseGame(object):
 		pygame.init()
 		self.screen = pygame.display.set_mode(screenSize)
 		self.background = pygame.image.load(bkgrndPict).convert_alpha()
+		self.muteIcon = pygame.image.load(mutePict).convert_alpha()
 		self.mice = []
 		self.mouseSpawnTimer = 0
 		self.score = 0
+		self.collideSound= pygame.mixer.Sound(collideSound)
+		self.mute = False
 
 	def start(self):
 		"""Initialize & start the game."""
@@ -185,6 +190,13 @@ class CatMouseGame(object):
 			if keyState[pygame.K_q]:
 				sys.exit()
 
+			# Mute sound
+			if keyState[pygame.K_m]:
+				if self.mute == False:
+					self.mute = True
+				else:
+					self.mute = False
+
 			# Update position of cat sprite
 			self.cat.update((self.catx, self.caty))
 
@@ -198,6 +210,8 @@ class CatMouseGame(object):
 			# Add 1 to the score for each mouse caught
 			for mouse in collideList:
 				self.score +=1
+				if self.mute == False:
+					self.collideSound.play()			# Play collide sound
 
 			self.screen.blit(self.background, (0, 0))	# Display background image (same size as screen)
 
@@ -210,16 +224,16 @@ class CatMouseGame(object):
 			font = pygame.font.Font(None, 24)
 			text = font.render("Score: " + str(self.score), 1, (255, 255, 255))
 			textpos = text.get_rect()
-			#textpos.topleft = self.screen.get_rect().topleft
 			textpos.topleft = (10, 10)
 			self.screen.blit(text, textpos)
 
+			# Display mute icon (if sound is muted)
+			if self.mute == True:
+				mutepos = self.muteIcon.get_rect()
+				mutepos.topleft = (screenSize[0] - self.muteIcon.get_rect().size[0] - 10, 10)
+				self.screen.blit(self.muteIcon, mutepos)
+
 			pygame.display.flip()
-			
-			# Test code to move cat and mouse diagonally down & to the right @different speeds
-			#mousex += 2
-			#mousey += 2
-			#mouse.update((mousex, mousey))
 			pygame.time.wait(waitTime)	# To regulate gameplay speed
 
 if __name__ == "__main__":
