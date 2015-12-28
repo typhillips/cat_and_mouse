@@ -1,8 +1,10 @@
 import sys
 import random
 import pygame
+import ConfigParser
 
 # Constants
+cfgFilename = "settings.ini"
 screenSize = (600, 400)
 bkgrndPict = "grass.png"		# For now, background pict must be same dimenstions as screenSize (600x400 pixels)
 catPict = "cat.png"				# 80x58 pixels
@@ -135,6 +137,25 @@ class CatMouseGame(object):
 		self.score = 0
 		self.collideSound= pygame.mixer.Sound(collideSound)
 		self.mute = False
+
+	def readConfig(self):
+		""" Read configuration input file. """
+		try:
+			# Instantiate config parser and process file
+			config = ConfigParser.RawConfigParser()
+			config.read(cfgFilename)
+
+			# Read [com settings] section
+			#self.comPort = config.getint('com settings', 'com port')
+			#self.BPS = config.getint('com settings', 'bps')
+			#self.slaveAdr = config.getint('com settings', 'slave address')
+			#self.echoSupp = config.getboolean('com settings', 'echo suppression')
+
+		# If any kind of exception occurs while parsing the configuration file, just silently ignore
+		#   any remaining settings and abort the configuration update
+		except:
+			pass
+
 
 	def start(self):
 		"""Initialize & start the game."""
