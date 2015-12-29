@@ -227,6 +227,13 @@ class CatMouseGame(object):
 			textpos.topleft = (10, 10)
 			self.screen.blit(text, textpos)
 
+			# Display elapsed time
+			font = pygame.font.Font(None, 24)
+			text = font.render(str(pygame.time.get_ticks()), 1, (255, 255, 255))	# Reset spawn timer to current time
+			textpos = text.get_rect()
+			textpos.bottomleft = (10, screenSize[1] - 10)
+			self.screen.blit(text, textpos)
+
 			# Display mute icon (if sound is muted)
 			if self.mute == True:
 				mutepos = self.muteIcon.get_rect()
