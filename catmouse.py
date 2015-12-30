@@ -1,22 +1,15 @@
 import sys
 import random
 import pygame
+import ConfigParser
 
 # Constants
+cfgFilename = "settings.ini"
 screenSize = (600, 400)
-bkgrndPict = "grass.png"		# For now, background pict must be same dimenstions as screenSize (600x400 pixels)
-catPict = "cat.png"				# 80x58 pixels
-mousePict = "mouse.png"			# 50x49 pixels
-mutePict = "mute.png"
-collideSound = "meow.ogg"
-catSpeed = 7					# Pixels to move for each keypress
-waitTime = 10					# Time delay in ms for each loop
-spawnTime = 2000				# Time in ms between each mouse spawn TODO randomize this
-mouseMoveGain = 3				# Gain factor which affects how fast the mice move
 
 class Cat(pygame.sprite.Sprite):
 	"""Cat class"""
-	def __init__(self):
+	def __init__(self, catPict):
 		"""Creates a cat given an (x,y) tuple with specified starting position."""
 		pygame.sprite.Sprite.__init__(self)		# Call the parent class (Sprite) constructor
 
@@ -35,7 +28,7 @@ class Cat(pygame.sprite.Sprite):
 
 class Mouse(pygame.sprite.Sprite):
 	"""Mouse class"""
-	def __init__(self):
+	def __init__(self, mousePict, mouseMoveGain, screenSize):
 		"""Creates a mouse given an (x,y) tuple with specified starting position."""
 		pygame.sprite.Sprite.__init__(self)		# Call the parent class (Sprite) constructor
 
@@ -45,28 +38,32 @@ class Mouse(pygame.sprite.Sprite):
 		# Update the position of this object by setting the values # of rect.x and rect.y
 		self.rect = self.image.get_rect()
 
+		# "Trimmed" screen size is slightly smaller than full screen size so that mice don't get generated
+		#   partially off screen
+		self.screenSizeTrimmed = (screenSize[0] - self.rect.size[0], screenSize[1] - self.rect.size[1])
+		
 		# For collision detection (half of rect width)
 		self.radius = self.rect.width / 2
 
 		# Get random point on edge of screen and set starting sprite position to this point
-		startPoint = self.makeEdgePoint(screenSize)
+		startPoint = self.makeEdgePoint(self.screenSizeTrimmed)
 		self.rect.x = startPoint[0]
 		self.rect.y = startPoint[1]
 
 		# Get a second random point (but convert tuple to a list so we can manipulate it)
-		endPoint = list(self.makeEdgePoint(screenSize))
+		endPoint = list(self.makeEdgePoint(self.screenSizeTrimmed))
 
 		#### This next bit of code ensures that start and end points aren't too close together
 		# If start point is on left edge, force end point to right side of screen, and
 		#   if start point is on right edge, force end point to left side of screen
-		if ((startPoint[0] == 0) and (endPoint[0] < (screenSize[0] / 2))) or \
-		   ((startPoint[0] == screenSize[0]) and (endPoint[0] > (screenSize[0] / 2))):
-			endPoint[0] = screenSize[0] - endPoint[0]	# Flip end point horizontally
+		if ((startPoint[0] == 0) and (endPoint[0] < (self.screenSizeTrimmed[0] / 2))) or \
+		   ((startPoint[0] == self.screenSizeTrimmed[0]) and (endPoint[0] > (self.screenSizeTrimmed[0] / 2))):
+			endPoint[0] = self.screenSizeTrimmed[0] - endPoint[0]	# Flip end point horizontally
 		# If start point is on top edge, force end point to bottom side of screen, and
 		#   if start point is on bottom edge, force end point to top side of screen
-		elif ((startPoint[1] == 0) and (endPoint[1] < (screenSize[1] / 2))) or \
-		     ((startPoint[1] == screenSize[1]) and (endPoint[1] > (screenSize[1] > 2))):
-			endPoint[1] = screenSize[1] - endPoint[1]	# Flip end point vertically
+		elif ((startPoint[1] == 0) and (endPoint[1] < (self.screenSizeTrimmed[1] / 2))) or \
+		     ((startPoint[1] == self.screenSizeTrimmed[1]) and (endPoint[1] > (self.screenSizeTrimmed[1] > 2))):
+			endPoint[1] = self.screenSizeTrimmed[1] - endPoint[1]	# Flip end point vertically
 		else:
 			pass
 
@@ -108,11 +105,11 @@ class Mouse(pygame.sprite.Sprite):
 			x = random.randrange(0, size[0])
 			y = 0
 		elif side == 1:		# Right edge
-			x = screenSize[0]
+			x = self.screenSizeTrimmed[0]
 			y = random.randrange(0, size[1])
 		elif side == 2:		# Bottom edge
 			x = random.randrange(0, size[0])
-			y = screenSize[1]
+			y = self.screenSizeTrimmed[1]
 		else:				# Left edge
 			x = 0
 			y = random.randrange(0, size[1])
@@ -127,21 +124,59 @@ class CatMouseGame(object):
 	"""Main class for the game"""
 	def __init__(self):
 		pygame.init()
-		self.screen = pygame.display.set_mode(screenSize)
-		self.background = pygame.image.load(bkgrndPict).convert_alpha()
-		self.muteIcon = pygame.image.load(mutePict).convert_alpha()
+		self.readConfig()
+		self.screen = pygame.display.set_mode(self.screenSize)
+		self.background = pygame.image.load(self.bkgrndPict).convert_alpha()
+		self.muteIcon = pygame.image.load(self.mutePict).convert_alpha()
 		self.mice = []
 		self.mouseSpawnTimer = 0
 		self.score = 0
-		self.collideSound= pygame.mixer.Sound(collideSound)
 		self.mute = False
+
+	def readConfig(self):
+		""" Read configuration input file. """
+		try:
+			# Instantiate config parser and process file
+			config = ConfigParser.RawConfigParser()
+			config.read(cfgFilename)
+
+			# Read [general] section
+			tmplist = []
+			for dimension in config.get('general', 'screen size').split(','):
+				tmplist.append(int(dimension))
+				self.screenSize = tuple(tmplist)
+			self.catSpeed = config.getint('general', 'cat speed')
+			self.waitTime = config.getint('general', 'wait time')
+			self.spawnTime = config.getint('general', 'spawn time')
+			self.mouseMoveGain = config.getint('general', 'mouse move gain')
+			self.fontSize = config.getint('general', 'font size')
+
+			tmplist = []
+			for color in config.get('general', 'font color').split(','):
+				tmplist.append(int(color))
+				self.fontColor = tuple(tmplist)
+
+			# Read [pictures] section
+			self.bkgrndPict = config.get('pictures', 'background')
+			self.catPict = config.get('pictures', 'cat')
+			self.mousePict = config.get('pictures', 'mouse')
+			self.mutePict = config.get('pictures', 'mute')
+
+			# Read [sounds] section
+			self.collideSound= pygame.mixer.Sound(config.get('sounds', 'collide'))
+
+		# If any kind of exception occurs while parsing the configuration file, just silently ignore
+		#   any remaining settings and abort the configuration update
+		except:
+			pass
+
 
 	def start(self):
 		"""Initialize & start the game."""
 		# Place cat at random start location
-		self.cat = Cat()
-		self.catx = random.randrange(1, screenSize[0] - self.cat.rect.size[0])
-		self.caty = random.randrange(1, screenSize[1] - self.cat.rect.size[1])
+		self.cat = Cat(self.catPict)
+		self.catx = random.randrange(1, self.screenSize[0] - self.cat.rect.size[0])
+		self.caty = random.randrange(1, self.screenSize[1] - self.cat.rect.size[1])
 		self.cat.update((self.catx, self.caty))
 
 		# Create groups for sprites to belong to
@@ -155,8 +190,8 @@ class CatMouseGame(object):
 	def manageMice(self):
 		"""Handle creating/destroying mice sprites & their movement."""
 		# Spawn a new mouse if spawn time has elapsed
-		if (pygame.time.get_ticks() - self.mouseSpawnTimer) > spawnTime:
-			mouse = Mouse()
+		if (pygame.time.get_ticks() - self.mouseSpawnTimer) > self.spawnTime:
+			mouse = Mouse(self.mousePict, self.mouseMoveGain, self.screenSize)
 			self.mice.append(mouse)
 			self.mousegroup.add(mouse)
 			self.mouseSpawnTimer = pygame.time.get_ticks()	# Reset spawn timer to current time
@@ -164,7 +199,7 @@ class CatMouseGame(object):
 		# Move each mouse
 		for mouse in self.mice:
 			mouse.update()
-			if (mouse.rect.x > screenSize[0]) or (mouse.rect.y > screenSize[1]):
+			if (mouse.rect.x > self.screenSize[0]) or (mouse.rect.y > self.screenSize[1]):
 				mouse.kill()
 
 	def mainLoop(self):
@@ -178,13 +213,13 @@ class CatMouseGame(object):
 			keyState = pygame.key.get_pressed()
 
 			if keyState[pygame.K_UP] and (self.caty > 0):
-				self.caty -= catSpeed
-			if keyState[pygame.K_DOWN] and (self.caty < (screenSize[1] - self.cat.rect.size[1])):
-				self.caty += catSpeed
+				self.caty -= self.catSpeed
+			if keyState[pygame.K_DOWN] and (self.caty < (self.screenSize[1] - self.cat.rect.size[1])):
+				self.caty += self.catSpeed
 			if keyState[pygame.K_LEFT] and (self.catx > 0):
-				self.catx -= catSpeed
-			if keyState[pygame.K_RIGHT] and (self.catx < (screenSize[0] - self.cat.rect.size[0])):
-				self.catx += catSpeed
+				self.catx -= self.catSpeed
+			if keyState[pygame.K_RIGHT] and (self.catx < (self.screenSize[0] - self.cat.rect.size[0])):
+				self.catx += self.catSpeed
 
 			# for development - quick exit
 			if keyState[pygame.K_q]:
@@ -221,8 +256,8 @@ class CatMouseGame(object):
 			self.catgroup.draw(self.screen)
 
 			# Display score
-			font = pygame.font.Font(None, 24)
-			text = font.render("Score: " + str(self.score), 1, (255, 255, 255))
+			font = pygame.font.Font(None, self.fontSize)
+			text = font.render("Score: " + str(self.score), 1, self.fontColor)
 			textpos = text.get_rect()
 			textpos.topleft = (10, 10)
 			self.screen.blit(text, textpos)
@@ -237,11 +272,11 @@ class CatMouseGame(object):
 			# Display mute icon (if sound is muted)
 			if self.mute == True:
 				mutepos = self.muteIcon.get_rect()
-				mutepos.topleft = (screenSize[0] - self.muteIcon.get_rect().size[0] - 10, 10)
+				mutepos.topleft = (self.screenSize[0] - self.muteIcon.get_rect().size[0] - 10, 10)
 				self.screen.blit(self.muteIcon, mutepos)
 
 			pygame.display.flip()
-			pygame.time.wait(waitTime)	# To regulate gameplay speed
+			pygame.time.wait(self.waitTime)	# To regulate gameplay speed
 
 if __name__ == "__main__":
 	game = CatMouseGame()
