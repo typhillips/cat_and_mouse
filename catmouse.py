@@ -6,19 +6,10 @@ import ConfigParser
 # Constants
 cfgFilename = "settings.ini"
 screenSize = (600, 400)
-#bkgrndPict = "grass.png"		# For now, background pict must be same dimenstions as screenSize (600x400 pixels)
-catPict = "cat.png"				# 80x58 pixels
-mousePict = "mouse.png"			# 50x49 pixels
-#mutePict = "mute.png"
-#collideSound = "meow.ogg"
-#catSpeed = 7					# Pixels to move for each keypress
-#waitTime = 10					# Time delay in ms for each loop
-#spawnTime = 2000				# Time in ms between each mouse spawn TODO randomize this
-#mouseMoveGain = 3				# Gain factor which affects how fast the mice move
 
 class Cat(pygame.sprite.Sprite):
 	"""Cat class"""
-	def __init__(self):
+	def __init__(self, catPict):
 		"""Creates a cat given an (x,y) tuple with specified starting position."""
 		pygame.sprite.Sprite.__init__(self)		# Call the parent class (Sprite) constructor
 
@@ -37,7 +28,7 @@ class Cat(pygame.sprite.Sprite):
 
 class Mouse(pygame.sprite.Sprite):
 	"""Mouse class"""
-	def __init__(self):
+	def __init__(self, mousePict, mouseMoveGain):
 		"""Creates a mouse given an (x,y) tuple with specified starting position."""
 		pygame.sprite.Sprite.__init__(self)		# Call the parent class (Sprite) constructor
 
@@ -136,7 +127,6 @@ class CatMouseGame(object):
 		self.mice = []
 		self.mouseSpawnTimer = 0
 		self.score = 0
-		#self.collideSound= pygame.mixer.Sound(collideSound)
 		self.mute = False
 
 	def readConfig(self):
@@ -154,20 +144,20 @@ class CatMouseGame(object):
 			self.catSpeed = config.getint('general', 'cat speed')
 			self.waitTime = config.getint('general', 'wait time')
 			self.spawnTime = config.getint('general', 'spawn time')
-			mouseMoveGain = config.getint('general', 'mouse move gain')
+			self.mouseMoveGain = config.getint('general', 'mouse move gain')
 			self.fontSize = config.getint('general', 'font size')
-			
+
 			tmplist = []
 			for color in config.get('general', 'font color').split(','):
 				tmplist.append(int(color))
 				self.fontColor = tuple(tmplist)
-				
+
 			# Read [pictures] section
 			self.bkgrndPict = config.get('pictures', 'background')
-			catPict = config.get('pictures', 'cat')
-			mousePict = config.get('pictures', 'mouse')
+			self.catPict = config.get('pictures', 'cat')
+			self.mousePict = config.get('pictures', 'mouse')
 			self.mutePict = config.get('pictures', 'mute')
-			
+
 			# Read [sounds] section
 			self.collideSound= pygame.mixer.Sound(config.get('sounds', 'collide'))
 
@@ -186,7 +176,7 @@ class CatMouseGame(object):
 	def start(self):
 		"""Initialize & start the game."""
 		# Place cat at random start location
-		self.cat = Cat()
+		self.cat = Cat(self.catPict)
 		self.catx = random.randrange(1, screenSize[0] - self.cat.rect.size[0])
 		self.caty = random.randrange(1, screenSize[1] - self.cat.rect.size[1])
 		self.cat.update((self.catx, self.caty))
@@ -203,7 +193,7 @@ class CatMouseGame(object):
 		"""Handle creating/destroying mice sprites & their movement."""
 		# Spawn a new mouse if spawn time has elapsed
 		if (pygame.time.get_ticks() - self.mouseSpawnTimer) > self.spawnTime:
-			mouse = Mouse()
+			mouse = Mouse(self.mousePict, self.mouseMoveGain)
 			self.mice.append(mouse)
 			self.mousegroup.add(mouse)
 			self.mouseSpawnTimer = pygame.time.get_ticks()	# Reset spawn timer to current time
