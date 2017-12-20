@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 import sys
 import random
 import pygame
@@ -41,7 +43,7 @@ class Mouse(pygame.sprite.Sprite):
 		# "Trimmed" screen size is slightly smaller than full screen size so that mice don't get generated
 		#   partially off screen
 		self.screenSizeTrimmed = (screenSize[0] - self.rect.size[0], screenSize[1] - self.rect.size[1])
-		
+
 		# For collision detection (half of rect width)
 		self.radius = self.rect.width / 2
 
