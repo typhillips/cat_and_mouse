@@ -14,7 +14,7 @@ Move the cat using the arrow keys
 The settings.ini file can be edited to adjust various game attributes and aspects of gameplay. It is fairly self explanatory.
 
 ## TODO
-1. Display time in mm:ss instead of ms.
+1. ~~Display time in mm:ss instead of ms.~~
 2. Put a time limit on gameplay.
 3. Add a game menu with settings.
 4. Expand gameplay (multiple levels, different objects, etc.).
