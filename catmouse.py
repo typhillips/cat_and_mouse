@@ -10,6 +10,7 @@ import sys
 import random
 import pygame
 import ConfigParser
+import time
 
 # Constants
 cfgFilename = "settings.ini"
@@ -272,7 +273,8 @@ class CatMouseGame(object):
 
 			# Display elapsed time
 			font = pygame.font.Font(None, 24)
-			text = font.render(str(pygame.time.get_ticks()), 1, (255, 255, 255))	# Reset spawn timer to current time
+			time_str = time.strftime('%M:%S', time.gmtime(pygame.time.get_ticks()/1000))	# Convert time in ms to sec and format as MM:SS
+			text = font.render(time_str, 1, (255, 255, 255))
 			textpos = text.get_rect()
 			textpos.bottomleft = (10, screenSize[1] - 10)
 			self.screen.blit(text, textpos)
