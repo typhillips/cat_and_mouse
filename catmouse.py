@@ -165,6 +165,8 @@ class CatMouseGame(object):
 				tmplist.append(int(color))
 				self.fontColor = tuple(tmplist)
 
+			self.gameTime = config.getint('general', 'game time')
+
 			# Read [pictures] section
 			self.bkgrndPict = config.get('pictures', 'background')
 			self.catPict = config.get('pictures', 'cat')
@@ -277,8 +279,9 @@ class CatMouseGame(object):
 
 			# Display elapsed time
 			font = pygame.font.Font(None, 24)
-			time_str = time.strftime('%M:%S', time.gmtime(pygame.time.get_ticks()/1000))	# Convert time in ms to sec and format as MM:SS
-			text = font.render(time_str, 1, (255, 255, 255))
+			time_remaining = time.gmtime((self.gameTime - pygame.time.get_ticks()) / 1000)
+			time_remaining_str = time.strftime('%M:%S', time_remaining)		# Convert time in ms to sec and format as MM:SS
+			text = font.render(time_remaining_str, 1, (255, 255, 255))
 			textpos = text.get_rect()
 			textpos.bottomleft = (10, screenSize[1] - 10)
 			self.screen.blit(text, textpos)
