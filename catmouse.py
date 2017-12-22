@@ -295,6 +295,14 @@ class CatMouseGame(object):
 				mutepos.topleft = (self.screenSize[0] - self.muteIcon.get_rect().size[0] - 10, 10)
 				self.screen.blit(self.muteIcon, mutepos)
 
+			# Game over display
+			if self.timeRemaining <= 0:
+				font_go = pygame.font.Font(None, 48)
+				text = font_go.render("GAME OVER", 1, self.fontColor)
+				textpos = text.get_rect()
+				textpos.midleft = ((screenSize[0] - textpos.width) / 2, screenSize[1] / 2)
+				self.screen.blit(text, textpos)
+
 			pygame.display.flip()
 			pygame.time.wait(self.waitTime)	# To regulate gameplay speed
 
