@@ -281,8 +281,7 @@ class CatMouseGame(object):
 
 			# Display elapsed time
 			font = pygame.font.Font(None, 24)
-			# Lower limit time remaining to 0
-			self.timeRemaining = max( self.gameTime - pygame.time.get_ticks(), 0 )
+			self.timeRemaining = max( self.gameTime - pygame.time.get_ticks(), 0 )				# Lower limit time remaining to 0
 			time_remaining_str = time.strftime('%M:%S', time.gmtime(self.timeRemaining / 1000))	# Convert time in ms to sec and format as MM:SS
 			text = font.render(time_remaining_str, 1, (255, 255, 255))
 			textpos = text.get_rect()
