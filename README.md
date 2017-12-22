@@ -7,7 +7,7 @@ An extremely basic and silly game (still in progress) I made for my young daught
 
 ## Controls
 Move the cat using the arrow keys  
-'m' to mute or unmute sound (not currently functional)  
+'m' to mute or unmute sound  
 'q' to quit
 
 ## Settings
