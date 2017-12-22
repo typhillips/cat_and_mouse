@@ -131,8 +131,9 @@ class Mouse(pygame.sprite.Sprite):
 
 class CatMouseGame(object):
 	"""Main class for the game"""
-	def __init__(self):
+	def __init__(self, debugMode=False):
 		pygame.init()
+		self.debugMode = debugMode
 		self.readConfig()
 		self.screen = pygame.display.set_mode(self.screenSize)
 		self.background = pygame.image.load(self.bkgrndPict).convert_alpha()
@@ -167,7 +168,10 @@ class CatMouseGame(object):
 				tmplist.append(int(color))
 				self.fontColor = tuple(tmplist)
 
-			self.gameTime = config.getint('general', 'game time')
+			if self.debugMode:
+				self.gameTime = 10000	# 10 sec gameplay in debug mode
+			else:
+				self.gameTime = config.getint('general', 'game time')
 
 			# Read [pictures] section
 			self.bkgrndPict = config.get('pictures', 'background')
@@ -306,6 +310,10 @@ class CatMouseGame(object):
 			pygame.time.wait(self.waitTime)	# To regulate gameplay speed
 
 if __name__ == "__main__":
-	game = CatMouseGame()
+	if len(sys.argv) > 1 and sys.argv[1] == "--debug":
+		game = CatMouseGame(True)
+	else:
+		game = CatMouseGame()
+
 	game.start()
 
