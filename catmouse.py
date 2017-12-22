@@ -142,6 +142,7 @@ class CatMouseGame(object):
 		self.score = 0
 		self.mute = False
 		self.timeRemaining = self.gameTime
+		self.highScore = 0
 
 	def readConfig(self):
 		""" Read configuration input file. """
@@ -183,9 +184,10 @@ class CatMouseGame(object):
 		except:
 			pass
 
-
 	def start(self):
 		"""Initialize & start the game."""
+		self.gameMenu()
+
 		# Place cat at random start location
 		self.cat = Cat(self.catPict)
 		self.catx = random.randrange(1, self.screenSize[0] - self.cat.rect.size[0])
@@ -214,6 +216,35 @@ class CatMouseGame(object):
 			mouse.update()
 			if (mouse.rect.x > self.screenSize[0]) or (mouse.rect.y > self.screenSize[1]):
 				mouse.kill()
+
+	def gameMenu(self):
+		"""Handles the main menu, which allows manipulating the settings file and starting the game."""
+		while True:
+			for event in pygame.event.get():
+				if event.type == pygame.QUIT:
+					sys.exit()
+			keyState = pygame.key.get_pressed()
+			self.screen.blit(self.background, (0, 0))	# Display background image (same size as screen)
+
+			# Wait for space bar to start game
+			if keyState[pygame.K_SPACE]:
+				break
+
+			font = pygame.font.Font(None, self.largeFontSize)
+			text = font.render("CAT AND MOUSE", True, self.fontColor)
+			textpos = text.get_rect()
+			textpos.topleft = ((screenSize[0] - textpos.width) / 2, 10)
+			self.screen.blit(text, textpos)
+
+			# Display high score
+			font = pygame.font.Font(None, self.smallFontSize)
+			text = font.render("High score: " + str(self.highScore), True, self.fontColor)
+			textpos = text.get_rect()
+			textpos.topleft = (10, screenSize[1] / 3)	# Third of the way down, left justified
+			self.screen.blit(text, textpos)
+
+			pygame.display.flip()
+			pygame.time.wait(self.waitTime)	# To regulate gameplay speed
 
 	def mainLoop(self):
 		"""Main loop for gameplay."""
@@ -294,8 +325,13 @@ class CatMouseGame(object):
 				mutepos.topleft = (self.screenSize[0] - self.muteIcon.get_rect().size[0] - 10, 10)
 				self.screen.blit(self.muteIcon, mutepos)
 
-			# Game over display
+			# Game over
 			if self.timeRemaining <= 0:
+				# Update high score
+				if self.score > self.highScore:
+					self.highScore = self.score
+
+				# Display GAME OVER
 				font_go = pygame.font.Font(None, self.largeFontSize)
 				text = font_go.render("GAME OVER", True, self.fontColor)
 				textpos = text.get_rect()
@@ -304,6 +340,7 @@ class CatMouseGame(object):
 
 			pygame.display.flip()
 			pygame.time.wait(self.waitTime)	# To regulate gameplay speed
+
 
 if __name__ == "__main__":
 	game = CatMouseGame()
