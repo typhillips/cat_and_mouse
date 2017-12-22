@@ -141,6 +141,7 @@ class CatMouseGame(object):
 		self.mouseSpawnTimer = 0
 		self.score = 0
 		self.mute = False
+		self.timeRemaining = self.gameTime
 
 	def readConfig(self):
 		""" Read configuration input file. """
@@ -201,7 +202,7 @@ class CatMouseGame(object):
 	def manageMice(self):
 		"""Handle creating/destroying mice sprites & their movement."""
 		# Spawn a new mouse if spawn time has elapsed
-		if (pygame.time.get_ticks() - self.mouseSpawnTimer) > self.spawnTime:
+		if ( (pygame.time.get_ticks() - self.mouseSpawnTimer) > self.spawnTime ) and ( self.timeRemaining > 0):
 			mouse = Mouse(self.mousePict, self.mouseMoveGain, self.screenSize)
 			self.mice.append(mouse)
 			self.mousegroup.add(mouse)
@@ -247,8 +248,9 @@ class CatMouseGame(object):
 			# Save off previous key state
 			keyStateOld = keyState
 
-			# Update position of cat sprite
-			self.cat.update((self.catx, self.caty))
+			# Update position of cat sprite if game is still in progress
+			if self.timeRemaining > 0:
+				self.cat.update((self.catx, self.caty))
 
 			# Take care of the mice
 			self.manageMice()
@@ -279,8 +281,9 @@ class CatMouseGame(object):
 
 			# Display elapsed time
 			font = pygame.font.Font(None, 24)
-			time_remaining = time.gmtime((self.gameTime - pygame.time.get_ticks()) / 1000)
-			time_remaining_str = time.strftime('%M:%S', time_remaining)		# Convert time in ms to sec and format as MM:SS
+			# Lower limit time remaining to 0
+			self.timeRemaining = max( self.gameTime - pygame.time.get_ticks(), 0 )
+			time_remaining_str = time.strftime('%M:%S', time.gmtime(self.timeRemaining / 1000))	# Convert time in ms to sec and format as MM:SS
 			text = font.render(time_remaining_str, 1, (255, 255, 255))
 			textpos = text.get_rect()
 			textpos.bottomleft = (10, screenSize[1] - 10)
