@@ -275,7 +275,7 @@ class CatMouseGame(object):
 
 			# Display score
 			font = pygame.font.Font(None, self.smallFontSize)
-			text = font.render("Score: " + str(self.score), 1, self.fontColor)
+			text = font.render("Score: " + str(self.score), True, self.fontColor)
 			textpos = text.get_rect()
 			textpos.topleft = (10, 10)
 			self.screen.blit(text, textpos)
@@ -283,7 +283,7 @@ class CatMouseGame(object):
 			# Display elapsed time
 			self.timeRemaining = max( self.gameTime - pygame.time.get_ticks(), 0 )				# Lower limit time remaining to 0
 			time_remaining_str = time.strftime('%M:%S', time.gmtime(self.timeRemaining / 1000))	# Convert time in ms to sec and format as MM:SS
-			text = font.render(time_remaining_str, 1, self.fontColor)
+			text = font.render(time_remaining_str, True, self.fontColor)
 			textpos = text.get_rect()
 			textpos.bottomleft = (10, screenSize[1] - 10)
 			self.screen.blit(text, textpos)
@@ -297,7 +297,7 @@ class CatMouseGame(object):
 			# Game over display
 			if self.timeRemaining <= 0:
 				font_go = pygame.font.Font(None, self.largeFontSize)
-				text = font_go.render("GAME OVER", 1, self.fontColor)
+				text = font_go.render("GAME OVER", True, self.fontColor)
 				textpos = text.get_rect()
 				textpos.midleft = ((screenSize[0] - textpos.width) / 2, screenSize[1] / 2)
 				self.screen.blit(text, textpos)
