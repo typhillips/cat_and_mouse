@@ -235,11 +235,15 @@ class CatMouseGame(object):
 				sys.exit()
 
 			# Mute sound
-			if keyState[pygame.K_m]:
+			# Check previous state to debouce 'm' key since it's a toggle
+			if keyState[pygame.K_m] and not keyStateOld[pygame.K_m]:
 				if self.mute == False:
 					self.mute = True
 				else:
 					self.mute = False
+
+			# Save off previous key state
+			keyStateOld = keyState
 
 			# Update position of cat sprite
 			self.cat.update((self.catx, self.caty))
