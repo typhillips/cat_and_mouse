@@ -228,19 +228,60 @@ class CatMouseGame(object):
 		difficulty = 1
 		refresh = 1
 
-		cursorSelections = ( ("Difficulty", ("Easy", "Medium", "Hard")), ("Refresh", ("Slow", "Medium", "Fast")) )
+		cursorSelections = ( ("Difficulty:", ("Easy", "Medium", "Hard")), ("Refresh:", ("Slow", "Medium", "Fast")) )
 		cursorPosition = [0, difficulty]
 
 		while True:
+			keyPress = None
+
 			for event in pygame.event.get():
 				if event.type == pygame.QUIT:
 					sys.exit()
-			keyState = pygame.key.get_pressed()
-			self.screen.blit(self.background, (0, 0))	# Display background image (same size as screen)
+				# Check if key was pressed - if so, grab first keypress
+				elif keyPress == None and event.type == pygame.KEYDOWN:
+					keyPress = event.key
+				else:
+					keyPress = None
 
-			# Wait for space bar to start game
-			if keyState[pygame.K_SPACE]:
+			# Quit
+			if keyPress == pygame.K_q:
+				sys.exit()
+			# Play game
+			elif keyPress == pygame.K_SPACE:
 				break
+			# Move cursor between menu selections
+			elif keyPress == pygame.K_UP:
+				cursorPosition[0] -= 1
+			elif keyPress == pygame.K_DOWN:
+				cursorPosition[0] += 1
+			elif keyPress == pygame.K_LEFT:
+				cursorPosition[1] -= 1
+			elif keyPress == pygame.K_RIGHT:
+				cursorPosition[1] += 1
+			else:
+				pass
+
+			# Handle wrap around
+			if cursorPosition[0] > 1:
+				cursorPosition[0] = 0
+			elif cursorPosition[0] < 0:
+				cursorPosition[0] = 1
+			else:
+				pass
+
+			if cursorPosition[1] > 2:
+				cursorPosition[1] = 0
+			elif cursorPosition[1] < 0:
+				cursorPosition[1] = 2
+			else:
+				pass
+			print cursorPosition #debug
+			print difficulty, refresh #debug
+			# Update settings
+			difficulty = cursorPosition[0]
+			refresh = cursorPosition[1]
+
+			self.screen.blit(self.background, (0, 0))	# Display background image (same size as screen)
 
 			font = pygame.font.Font(None, self.largeFontSize)
 			text = font.render("CAT AND MOUSE", True, self.fontColor)
@@ -274,16 +315,22 @@ class CatMouseGame(object):
 			# Refresh rate
 			text = font.render(cursorSelections[1][0], True, self.fontColor)
 			textpos = text.get_rect()
-			textpos.topleft = (10, screenSize[1] * 2 / 3)	# Halfway down, left justified
+			textpos.topleft = (10, screenSize[1] * 3 / 5)	# Halfway down, left justified
 			self.screen.blit(text, textpos)
 
 			if cursorPosition[0] == 1:
-				text = font.render(cursorSelections[1][1][refresh], True, inverseFontColor, background=self.fontColor)
+				text = font.render(cursorSelections[1][1][refresh], True, inverseFontColor, self.fontColor)
 			else:
 				text = font.render(cursorSelections[1][1][refresh], True, self.fontColor)
 
 			textpos = text.get_rect()
-			textpos.topleft = (screenSize[0] / 4, screenSize[1] * 2 / 3)	# Halfway down, two thirds of the way to the right
+			textpos.topleft = (screenSize[0] / 4, screenSize[1] * 3 / 5)	# Halfway down, two thirds of the way to the right
+			self.screen.blit(text, textpos)
+
+			# More instructions
+			text = font.render("Press spacebar to play, 'q' to quit", True, self.fontColor)
+			textpos = text.get_rect()
+			textpos.bottomleft = ((screenSize[0] - textpos.width) / 2, screenSize[1] - 10)
 			self.screen.blit(text, textpos)
 
 			pygame.display.flip()
