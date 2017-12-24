@@ -219,6 +219,18 @@ class CatMouseGame(object):
 
 	def gameMenu(self):
 		"""Handles the main menu, which allows manipulating the settings file and starting the game."""
+		# OK.... full disclaimer here. The architecure of this menu is quite crude. I basically brute-forced it
+		#   just to get something operational. Don't judge me. :)
+
+		# Derive inverse font color (for highlighted text)
+		inverseFontColor = ( (255 - self.fontColor[0]), (255 - self.fontColor[1]), (255 - self.fontColor[1]) )
+
+		difficulty = 1
+		refresh = 1
+
+		cursorSelections = ( ("Difficulty", ("Easy", "Medium", "Hard")), ("Refresh", ("Slow", "Medium", "Fast")) )
+		cursorPosition = [0, difficulty]
+
 		while True:
 			for event in pygame.event.get():
 				if event.type == pygame.QUIT:
@@ -236,11 +248,42 @@ class CatMouseGame(object):
 			textpos.topleft = ((screenSize[0] - textpos.width) / 2, 10)
 			self.screen.blit(text, textpos)
 
-			# Display high score
 			font = pygame.font.Font(None, self.smallFontSize)
+
+			# Display high score
 			text = font.render("High score: " + str(self.highScore), True, self.fontColor)
 			textpos = text.get_rect()
 			textpos.topleft = (10, screenSize[1] / 3)	# Third of the way down, left justified
+			self.screen.blit(text, textpos)
+
+			# Game difficulty
+			text = font.render(cursorSelections[0][0], True, self.fontColor)
+			textpos = text.get_rect()
+			textpos.topleft = (10, screenSize[1] / 2)	# Halfway down, left justified
+			self.screen.blit(text, textpos)
+
+			if cursorPosition[0] == 0:
+				text = font.render(cursorSelections[0][1][difficulty], True, inverseFontColor, self.fontColor)
+			else:
+				text = font.render(cursorSelections[0][1][difficulty], True, self.fontColor)
+
+			textpos = text.get_rect()
+			textpos.topleft = (screenSize[0] / 4, screenSize[1] / 2)	# Halfway down, two thirds of the way to the right
+			self.screen.blit(text, textpos)
+
+			# Refresh rate
+			text = font.render(cursorSelections[1][0], True, self.fontColor)
+			textpos = text.get_rect()
+			textpos.topleft = (10, screenSize[1] * 2 / 3)	# Halfway down, left justified
+			self.screen.blit(text, textpos)
+
+			if cursorPosition[0] == 1:
+				text = font.render(cursorSelections[1][1][refresh], True, inverseFontColor, background=self.fontColor)
+			else:
+				text = font.render(cursorSelections[1][1][refresh], True, self.fontColor)
+
+			textpos = text.get_rect()
+			textpos.topleft = (screenSize[0] / 4, screenSize[1] * 2 / 3)	# Halfway down, two thirds of the way to the right
 			self.screen.blit(text, textpos)
 
 			pygame.display.flip()
