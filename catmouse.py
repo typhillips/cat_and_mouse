@@ -256,7 +256,8 @@ class CatMouseGame(object):
 				cursorPosition[0] += 1
 			elif keyPress == pygame.K_LEFT:
 				cursorPosition[1] -= 1
-			elif keyPress == pygame.K_RIGHT:
+			# Return key also increments selection
+			elif keyPress == pygame.K_RIGHT or keyPress == pygame.K_RETURN:
 				cursorPosition[1] += 1
 			else:
 				pass
