@@ -275,11 +275,14 @@ class CatMouseGame(object):
 				cursorPosition[1] = 2
 			else:
 				pass
-			print cursorPosition #debug
-			print difficulty, refresh #debug
+
 			# Update settings
-			difficulty = cursorPosition[0]
-			refresh = cursorPosition[1]
+			if cursorPosition[0] == 0:
+				difficulty = cursorPosition[1]
+			elif cursorPosition[0] == 1:
+				refresh = cursorPosition[1]
+			else:
+				pass
 
 			self.screen.blit(self.background, (0, 0))	# Display background image (same size as screen)
 
