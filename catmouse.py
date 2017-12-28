@@ -218,7 +218,7 @@ class CatMouseGame(object):
 				mouse.kill()
 
 	def gameMenu(self):
-		"""Handles the main menu, which allows manipulating the settings file and starting the game."""
+		"""Handles the main menu, which allows manipulating the settings and starting the game."""
 		# OK.... full disclaimer here. The architecure of this menu is quite crude. I basically brute-forced it
 		#   just to get something operational. Don't judge me. :)
 
@@ -348,6 +348,21 @@ class CatMouseGame(object):
 
 			pygame.display.flip()
 			pygame.time.wait(self.waitTime)	# To regulate gameplay speed
+
+		# Modify game settings based on menu selections
+		if refresh == 0:
+			self.waitTime = int(self.waitTime * 1.2)	# Slow refresh
+		elif refresh == 2:
+			self.waitTime = int(self.waitTime * 0.8)	# Fast refresh
+
+		# Easy
+		if difficulty == 0:
+			self.mouseMoveGain = max(1, int(self.mouseMoveGain / 2))	# Slow down mice (lower limit gain to 1)
+			self.SpawnTime = int(self.spawnTime * 1.5)					# Spawn mice more slowly
+		# Difficult
+		elif difficulty == 1:
+			self.mouseMoveGain *= 3										# Speed up mice
+			self.SpawnTime = int(self.spawnTime / 3)					# Spawn mice more quickly
 
 	def mainLoop(self):
 		"""Main loop for gameplay."""
