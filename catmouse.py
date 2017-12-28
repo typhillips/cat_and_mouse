@@ -250,10 +250,19 @@ class CatMouseGame(object):
 			elif keyPress == pygame.K_SPACE:
 				break
 			# Move cursor between menu selections
-			elif keyPress == pygame.K_UP:
-				cursorPosition[0] -= 1
-			elif keyPress == pygame.K_DOWN:
-				cursorPosition[0] += 1
+			elif keyPress == pygame.K_UP or keyPress == pygame.K_DOWN:
+				if keyPress == pygame.K_UP:
+					cursorPosition[0] -= 1
+				elif keyPress == pygame.K_DOWN:
+					cursorPosition[0] += 1
+				else:
+					pass
+
+				# Make sure settings are correct when advancing to a different one
+				if cursorPosition[0] == 0:
+					cursorPosition[1] = difficulty
+				elif cursorPosition[0] == 1:
+					cursorPosition[1] = refresh
 			elif keyPress == pygame.K_LEFT:
 				cursorPosition[1] -= 1
 			# Return key also increments selection
