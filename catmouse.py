@@ -141,8 +141,9 @@ class CatMouseGame(object):
 		self.mouseSpawnTimer = 0
 		self.score = 0
 		self.mute = False
-		self.timeRemaining = self.gameTime
 		self.highScore = 0
+		self.difficulty = 1
+		self.refresh = 1
 
 	def readConfig(self):
 		""" Read configuration input file. """
@@ -187,6 +188,7 @@ class CatMouseGame(object):
 	def start(self):
 		"""Initialize & start the game."""
 		self.gameMenu()
+		self.timeRemaining = self.gameTime
 
 		# Place cat at random start location
 		self.cat = Cat(self.catPict)
@@ -225,11 +227,8 @@ class CatMouseGame(object):
 		# Derive inverse font color (for highlighted text)
 		inverseFontColor = ( (255 - self.fontColor[0]), (255 - self.fontColor[1]), (255 - self.fontColor[1]) )
 
-		difficulty = 1
-		refresh = 1
-
 		cursorSelections = ( ("Difficulty:", ("Easy", "Medium", "Hard")), ("Refresh:", ("Slow", "Medium", "Fast")) )
-		cursorPosition = [0, difficulty]
+		cursorPosition = [0, self.difficulty]
 
 		while True:
 			keyPress = None
@@ -260,9 +259,9 @@ class CatMouseGame(object):
 
 				# Make sure settings are correct when advancing to a different one
 				if cursorPosition[0] == 0:
-					cursorPosition[1] = difficulty
+					cursorPosition[1] = self.difficulty
 				elif cursorPosition[0] == 1:
-					cursorPosition[1] = refresh
+					cursorPosition[1] = self.refresh
 			elif keyPress == pygame.K_LEFT:
 				cursorPosition[1] -= 1
 			# Return key also increments selection
@@ -288,9 +287,9 @@ class CatMouseGame(object):
 
 			# Update settings
 			if cursorPosition[0] == 0:
-				difficulty = cursorPosition[1]
+				self.difficulty = cursorPosition[1]
 			elif cursorPosition[0] == 1:
-				refresh = cursorPosition[1]
+				self.refresh = cursorPosition[1]
 			else:
 				pass
 
@@ -317,9 +316,9 @@ class CatMouseGame(object):
 			self.screen.blit(text, textpos)
 
 			if cursorPosition[0] == 0:
-				text = font.render(cursorSelections[0][1][difficulty], True, inverseFontColor, self.fontColor)
+				text = font.render(cursorSelections[0][1][self.difficulty], True, inverseFontColor, self.fontColor)
 			else:
-				text = font.render(cursorSelections[0][1][difficulty], True, self.fontColor)
+				text = font.render(cursorSelections[0][1][self.difficulty], True, self.fontColor)
 
 			textpos = text.get_rect()
 			textpos.topleft = (screenSize[0] / 4, screenSize[1] / 2)	# Halfway down, two thirds of the way to the right
@@ -332,9 +331,9 @@ class CatMouseGame(object):
 			self.screen.blit(text, textpos)
 
 			if cursorPosition[0] == 1:
-				text = font.render(cursorSelections[1][1][refresh], True, inverseFontColor, self.fontColor)
+				text = font.render(cursorSelections[1][1][self.refresh], True, inverseFontColor, self.fontColor)
 			else:
-				text = font.render(cursorSelections[1][1][refresh], True, self.fontColor)
+				text = font.render(cursorSelections[1][1][self.refresh], True, self.fontColor)
 
 			textpos = text.get_rect()
 			textpos.topleft = (screenSize[0] / 4, screenSize[1] * 3 / 5)	# Halfway down, two thirds of the way to the right
@@ -350,17 +349,17 @@ class CatMouseGame(object):
 			pygame.time.wait(self.waitTime)	# To regulate gameplay speed
 
 		# Modify game settings based on menu selections
-		if refresh == 0:
+		if self.refresh == 0:
 			self.waitTime = int(self.waitTime * 1.2)	# Slow refresh
-		elif refresh == 2:
+		elif self.refresh == 2:
 			self.waitTime = int(self.waitTime * 0.8)	# Fast refresh
 
 		# Easy
-		if difficulty == 0:
+		if self.difficulty == 0:
 			self.mouseMoveGain = max(1, int(self.mouseMoveGain / 2))	# Slow down mice (lower limit gain to 1)
 			self.SpawnTime = int(self.spawnTime * 1.5)					# Spawn mice more slowly
 		# Difficult
-		elif difficulty == 1:
+		elif self.difficulty == 1:
 			self.mouseMoveGain *= 3										# Speed up mice
 			self.SpawnTime = int(self.spawnTime / 3)					# Spawn mice more quickly
 
@@ -429,13 +428,14 @@ class CatMouseGame(object):
 			textpos.topleft = (10, 10)
 			self.screen.blit(text, textpos)
 
-			# Display elapsed time
-			self.timeRemaining = max( self.gameTime - pygame.time.get_ticks(), 0 )				# Lower limit time remaining to 0
-			time_remaining_str = time.strftime('%M:%S', time.gmtime(self.timeRemaining / 1000))	# Convert time in ms to sec and format as MM:SS
-			text = font.render(time_remaining_str, True, self.fontColor)
-			textpos = text.get_rect()
-			textpos.bottomleft = (10, screenSize[1] - 10)
-			self.screen.blit(text, textpos)
+			# Display elapsed time (unless game is over)
+			if self.timeRemaining:
+				self.timeRemaining = max( self.gameTime - pygame.time.get_ticks(), 0 )				# Lower limit time remaining to 0
+				time_remaining_str = time.strftime('%M:%S', time.gmtime(self.timeRemaining / 1000))	# Convert time in ms to sec and format as MM:SS
+				text = font.render(time_remaining_str, True, self.fontColor)
+				textpos = text.get_rect()
+				textpos.bottomleft = (10, screenSize[1] - 10)
+				self.screen.blit(text, textpos)
 
 			# Display mute icon (if sound is muted)
 			if self.mute == True:
@@ -456,9 +456,19 @@ class CatMouseGame(object):
 				textpos.midleft = ((screenSize[0] - textpos.width) / 2, screenSize[1] / 2)
 				self.screen.blit(text, textpos)
 
+				# More instructions
+				text = font.render("Press spacebar to play again, 'q' to quit", True, self.fontColor)
+				textpos = text.get_rect()
+				textpos.bottomleft = ((screenSize[0] - textpos.width) / 2, screenSize[1] - 10)
+				self.screen.blit(text, textpos)
+
+				if keyState[pygame.K_SPACE]:
+					break
+
 			pygame.display.flip()
 			pygame.time.wait(self.waitTime)	# To regulate gameplay speed
 
+		self.start()						# Space pressed - play again
 
 if __name__ == "__main__":
 	game = CatMouseGame()
