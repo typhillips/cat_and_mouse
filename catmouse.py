@@ -137,9 +137,6 @@ class CatMouseGame(object):
 		self.screen = pygame.display.set_mode(self.screenSize)
 		self.background = pygame.image.load(self.bkgrndPict).convert_alpha()
 		self.muteIcon = pygame.image.load(self.mutePict).convert_alpha()
-		self.mice = []
-		self.mouseSpawnTimer = 0
-		self.score = 0
 		self.mute = False
 		self.highScore = 0
 		self.difficulty = 1
@@ -188,7 +185,11 @@ class CatMouseGame(object):
 	def start(self):
 		"""Initialize & start the game."""
 		self.gameMenu()
+		self.startTimeTicks = pygame.time.get_ticks()
 		self.timeRemaining = self.gameTime
+		self.mice = []
+		self.mouseSpawnTimer = 0
+		self.score = 0
 
 		# Place cat at random start location
 		self.cat = Cat(self.catPict)
@@ -207,11 +208,11 @@ class CatMouseGame(object):
 	def manageMice(self):
 		"""Handle creating/destroying mice sprites & their movement."""
 		# Spawn a new mouse if spawn time has elapsed
-		if ( (pygame.time.get_ticks() - self.mouseSpawnTimer) > self.spawnTime ) and ( self.timeRemaining > 0):
+		if ( (pygame.time.get_ticks() - self.startTimeTicks - self.mouseSpawnTimer) > self.spawnTime ) and ( self.timeRemaining > 0):
 			mouse = Mouse(self.mousePict, self.mouseMoveGain, self.screenSize)
 			self.mice.append(mouse)
 			self.mousegroup.add(mouse)
-			self.mouseSpawnTimer = pygame.time.get_ticks()	# Reset spawn timer to current time
+			self.mouseSpawnTimer = pygame.time.get_ticks() - self.startTimeTicks	# Reset spawn timer to current time
 
 		# Move each mouse
 		for mouse in self.mice:
@@ -359,16 +360,23 @@ class CatMouseGame(object):
 			self.mouseMoveGain = max(1, int(self.mouseMoveGain / 2))	# Slow down mice (lower limit gain to 1)
 			self.SpawnTime = int(self.spawnTime * 1.5)					# Spawn mice more slowly
 		# Difficult
-		elif self.difficulty == 1:
-			self.mouseMoveGain *= 3										# Speed up mice
-			self.SpawnTime = int(self.spawnTime / 3)					# Spawn mice more quickly
+		elif self.difficulty == 2:
+			self.mouseMoveGain *= 2										# Speed up mice
+			self.SpawnTime = 0#int(self.spawnTime / 4)					# Spawn mice more quickly
 
 	def mainLoop(self):
 		"""Main loop for gameplay."""
 		while True:
+			keyPress = None
+
 			for event in pygame.event.get():
 				if event.type == pygame.QUIT:
 					sys.exit()
+				# Check if key was pressed - if so, grab first keypress
+				elif keyPress == None and event.type == pygame.KEYDOWN:
+					keyPress = event.key
+				else:
+					keyPress = None
 
 			# Move the cat based on key presses
 			keyState = pygame.key.get_pressed()
@@ -387,15 +395,11 @@ class CatMouseGame(object):
 				sys.exit()
 
 			# Mute sound
-			# Check previous state to debouce 'm' key since it's a toggle
-			if keyState[pygame.K_m] and not keyStateOld[pygame.K_m]:
+			if keyPress == pygame.K_m:
 				if self.mute == False:
 					self.mute = True
 				else:
 					self.mute = False
-
-			# Save off previous key state
-			keyStateOld = keyState
 
 			# Update position of cat sprite if game is still in progress
 			if self.timeRemaining > 0:
@@ -430,7 +434,7 @@ class CatMouseGame(object):
 
 			# Display elapsed time (unless game is over)
 			if self.timeRemaining:
-				self.timeRemaining = max( self.gameTime - pygame.time.get_ticks(), 0 )				# Lower limit time remaining to 0
+				self.timeRemaining = max( self.gameTime - (pygame.time.get_ticks() - self.startTimeTicks), 0 )				# Lower limit time remaining to 0
 				time_remaining_str = time.strftime('%M:%S', time.gmtime(self.timeRemaining / 1000))	# Convert time in ms to sec and format as MM:SS
 				text = font.render(time_remaining_str, True, self.fontColor)
 				textpos = text.get_rect()
