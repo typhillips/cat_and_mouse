@@ -18,6 +18,6 @@ The settings.ini file can be edited to adjust various game attributes and aspect
 2. ~~Put a time limit on gameplay.~~
 3. ~~Add a game menu with settings.~~
 4. Expand gameplay (multiple levels, different objects, etc.).
-5. Fix \'known incorrect sRGB profile\' warning
+5. ~~Fix \'known incorrect sRGB profile\' warning~~
 6. Everything else!
 
