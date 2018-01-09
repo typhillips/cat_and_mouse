@@ -14,7 +14,6 @@ import time
 
 # Constants
 cfgFilename = "settings.ini"
-screenSize = (600, 400)
 
 class Cat(pygame.sprite.Sprite):
 	"""Cat class"""
@@ -299,7 +298,7 @@ class CatMouseGame(object):
 			font = pygame.font.Font(None, self.largeFontSize)
 			text = font.render("CAT AND MOUSE", True, self.fontColor)
 			textpos = text.get_rect()
-			textpos.topleft = ((screenSize[0] - textpos.width) / 2, 10)
+			textpos.topleft = ((self.screenSize[0] - textpos.width) / 2, 10)
 			self.screen.blit(text, textpos)
 
 			font = pygame.font.Font(None, self.smallFontSize)
@@ -307,13 +306,13 @@ class CatMouseGame(object):
 			# Display high score
 			text = font.render("High score: " + str(self.highScore), True, self.fontColor)
 			textpos = text.get_rect()
-			textpos.topleft = (10, screenSize[1] / 3)	# Third of the way down, left justified
+			textpos.topleft = (10, self.screenSize[1] / 3)	# Third of the way down, left justified
 			self.screen.blit(text, textpos)
 
 			# Game difficulty
 			text = font.render(cursorSelections[0][0], True, self.fontColor)
 			textpos = text.get_rect()
-			textpos.topleft = (10, screenSize[1] / 2)	# Halfway down, left justified
+			textpos.topleft = (10, self.screenSize[1] / 2)	# Halfway down, left justified
 			self.screen.blit(text, textpos)
 
 			if cursorPosition[0] == 0:
@@ -322,13 +321,13 @@ class CatMouseGame(object):
 				text = font.render(cursorSelections[0][1][self.difficulty], True, self.fontColor)
 
 			textpos = text.get_rect()
-			textpos.topleft = (screenSize[0] / 4, screenSize[1] / 2)	# Halfway down, two thirds of the way to the right
+			textpos.topleft = (self.screenSize[0] / 4, self.screenSize[1] / 2)	# Halfway down, two thirds of the way to the right
 			self.screen.blit(text, textpos)
 
 			# Refresh rate
 			text = font.render(cursorSelections[1][0], True, self.fontColor)
 			textpos = text.get_rect()
-			textpos.topleft = (10, screenSize[1] * 3 / 5)	# Halfway down, left justified
+			textpos.topleft = (10, self.screenSize[1] * 3 / 5)	# Halfway down, left justified
 			self.screen.blit(text, textpos)
 
 			if cursorPosition[0] == 1:
@@ -337,13 +336,13 @@ class CatMouseGame(object):
 				text = font.render(cursorSelections[1][1][self.refresh], True, self.fontColor)
 
 			textpos = text.get_rect()
-			textpos.topleft = (screenSize[0] / 4, screenSize[1] * 3 / 5)	# Halfway down, two thirds of the way to the right
+			textpos.topleft = (self.screenSize[0] / 4, self.screenSize[1] * 3 / 5)	# Halfway down, two thirds of the way to the right
 			self.screen.blit(text, textpos)
 
 			# More instructions
 			text = font.render("Press spacebar to play, 'q' to quit", True, self.fontColor)
 			textpos = text.get_rect()
-			textpos.bottomleft = ((screenSize[0] - textpos.width) / 2, screenSize[1] - 10)
+			textpos.bottomleft = ((self.screenSize[0] - textpos.width) / 2, self.screenSize[1] - 10)
 			self.screen.blit(text, textpos)
 
 			pygame.display.flip()
@@ -438,7 +437,7 @@ class CatMouseGame(object):
 				time_remaining_str = time.strftime('%M:%S', time.gmtime(self.timeRemaining / 1000))	# Convert time in ms to sec and format as MM:SS
 				text = font.render(time_remaining_str, True, self.fontColor)
 				textpos = text.get_rect()
-				textpos.bottomleft = (10, screenSize[1] - 10)
+				textpos.bottomleft = (10, self.screenSize[1] - 10)
 				self.screen.blit(text, textpos)
 
 			# Display mute icon (if sound is muted)
@@ -457,13 +456,13 @@ class CatMouseGame(object):
 				font_go = pygame.font.Font(None, self.largeFontSize)
 				text = font_go.render("GAME OVER", True, self.fontColor)
 				textpos = text.get_rect()
-				textpos.midleft = ((screenSize[0] - textpos.width) / 2, screenSize[1] / 2)
+				textpos.midleft = ((self.screenSize[0] - textpos.width) / 2, self.screenSize[1] / 2)
 				self.screen.blit(text, textpos)
 
 				# More instructions
 				text = font.render("Press spacebar to play again, 'q' to quit", True, self.fontColor)
 				textpos = text.get_rect()
-				textpos.bottomleft = ((screenSize[0] - textpos.width) / 2, screenSize[1] - 10)
+				textpos.bottomleft = ((self.screenSize[0] - textpos.width) / 2, self.screenSize[1] - 10)
 				self.screen.blit(text, textpos)
 
 				if keyState[pygame.K_SPACE]:
