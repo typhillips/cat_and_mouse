@@ -1,5 +1,5 @@
 # cat_and_mouse
-An extremely basic and silly game (still in progress) I made for my young daughter in order to familiarize myself with PyGame
+An extremely basic and silly game I made for my young daughter in order to familiarize myself with PyGame
 
 ## Requirements
 * Python 2.7
