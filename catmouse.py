@@ -9,8 +9,13 @@
 import sys
 import random
 import pygame
-import ConfigParser
 import time
+
+# For Python2/3 compatibility (configparser module name change)
+try:
+	import configparser
+except ImportError:
+	import ConfigParser as configparser
 
 # Constants
 cfgFilename = "settings.ini"
@@ -145,7 +150,7 @@ class CatMouseGame(object):
 		""" Read configuration input file. """
 		try:
 			# Instantiate config parser and process file
-			config = ConfigParser.RawConfigParser()
+			config = configparser.RawConfigParser()
 			config.read(cfgFilename)
 
 			# Read [general] section
@@ -153,13 +158,13 @@ class CatMouseGame(object):
 			for dimension in config.get('general', 'screen size').split(','):
 				tmplist.append(int(dimension))
 				self.screenSize = tuple(tmplist)
+
 			self.catSpeed = config.getint('general', 'cat speed')
 			self.waitTime = config.getint('general', 'wait time')
 			self.spawnTime = config.getint('general', 'spawn time')
 			self.mouseMoveGain = config.getint('general', 'mouse move gain')
 			self.smallFontSize = config.getint('general', 'small font size')
 			self.largeFontSize = config.getint('general', 'large font size')
-
 			tmplist = []
 			for color in config.get('general', 'font color').split(','):
 				tmplist.append(int(color))
