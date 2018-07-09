@@ -2,7 +2,7 @@
 An extremely basic and silly game I made for my young daughter in order to familiarize myself with PyGame
 
 ## Requirements
-* Python 2.7
+* Python 2 (2.7) or 3 compatible
 * PyGame
 
 ## Controls
